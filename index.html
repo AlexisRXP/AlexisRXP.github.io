@@ -1,1 +1,110 @@
-<h1>Hello!</h1>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>拖拽控件</title>
+    <style>
+        body {
+            margin: 0;
+            overflow: hidden;
+        }
+    </style>
+</head>
+<body>
+
+<script type="importmap">
+    {
+        "imports": {
+        	"three": "./build/three.module.js",
+            "three/addons/": "./jsm/"
+        }
+    }
+</script>
+<script type="module">
+    import * as THREE from 'three';
+
+    import {GLTFLoader} from 'three/addons/loaders/GLTFLoader.js';
+    import {OrbitControls} from 'three/addons/controls/OrbitControls.js';
+
+    let scene, camera, renderer, controls, raycaster, light, mouse, size, distance, boundingBox, mesh;
+
+    // 场景
+    function initScene() {
+        scene = new THREE.Scene();
+        scene.background = new THREE.Color(0xa0a0a0);
+    }
+
+    // 相机
+    function initCamera() {
+        camera = new THREE.PerspectiveCamera(10, window.innerWidth / window.innerHeight, 0.1, 100);
+        camera.position.set(0, 15, 15);
+        camera.lookAt(new THREE.Vector3(0, 0, 0));
+    }
+
+    // 渲染器
+    function initRenderer() {
+        renderer = new THREE.WebGLRenderer();
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        document.body.appendChild(renderer.domElement);
+    }
+
+    // 初始化模型
+    function initContent() {
+        const loader = new GLTFLoader();
+        loader.load('./STL/2.glb', function (gltf) {
+            scene.add(gltf.scene);
+        });
+
+    }
+
+    // 窗口变动触发的方法
+    function onWindowResize() {
+        camera.aspect = window.innerWidth / window.innerHeight;
+        camera.updateProjectionMatrix();
+        renderer.setSize(window.innerWidth, window.innerHeight);
+    }
+
+    // 初始化轨迹球控件
+    function initControls() {
+        controls = new OrbitControls(camera, renderer.domElement);
+    }
+
+
+    // 初始化灯光
+    function initLight() {
+        light = new THREE.AmbientLight(0xffffff);
+        light.position.set(-0, -0, -0);
+        scene.add(light);
+        scene.add(new THREE.AmbientLight(0xffffff));
+
+        // 创建平行光
+        const directionalLight = new THREE.DirectionalLight(0xf8f0a3, 1);
+        // 控制平行光的方向
+        directionalLight.position.set(0, 0, -20);
+        scene.add(directionalLight);
+    }
+
+    // 初始化
+    function init() {
+        initScene();
+        initCamera();
+        initRenderer();
+        initContent();
+        initLight();
+        initControls();
+        window.addEventListener('resize', onWindowResize, false);
+    }
+
+    function animate() {
+
+        requestAnimationFrame(animate);
+        renderer.render(scene, camera);
+        controls.update();
+    }
+
+    init();
+    animate();
+
+</script>
+</body>
+</html>
